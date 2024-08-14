@@ -1,4 +1,3 @@
-txt
 Flask==2.0.1
 newsapi-python==0.2.6
 requests==2.26.0
