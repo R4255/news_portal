@@ -1,0 +1,81 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Portal</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .news-card {
+            margin-bottom: 20px;
+        }
+        .news-card img {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">News Portal</h1>
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="{{ url_for('index') }}">News Categories</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto">
+                    {% for cat in categories %}
+                    <li class="nav-item {% if category == cat %}active{% endif %}">
+                        <a class="nav-link" href="{{ url_for('index', category=cat) }}">{{ cat.capitalize() }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+        <!-- End Navbar -->
+        <div class="row">
+            {% for article in articles %}
+            <div class="col-md-4">
+                <div class="card news-card">
+                    <img src="{{ article.urlToImage if article.urlToImage else url_for('static', filename='default_image.jpg') }}" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ article.title }}</h5>
+                        <p class="card-text">{{ article.description if article.description else '' }}</p>
+                        <a href="{{ article.url }}" class="btn btn-primary" target="_blank">Read More</a>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            {{ article.source.name }} - {{ article.publishedAt.split('T')[0] }}
+                            <br>
+                            Tag: {{ category.capitalize() }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('index', category=category, page=page-1) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% for i in range(1, total_pages + 1) %}
+                <li class="page-item {% if page == i %}active{% endif %}"><a class="page-link" href="{{ url_for('index', category=category, page=i) }}">{{ i }}</a></li>
+                {% endfor %}
+                {% if page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('index', category=category, page=page+1) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</body>
+</html>
