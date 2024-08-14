@@ -9,12 +9,3 @@ This is a Flask-based news portal application that fetches news articles from Ne
 - Pagination with 20 articles per page
 - Default image for articles without an image
 
-## Setup
-
-1. Install dependencies:sh 
-   pip install -r requirements.txt
-
-
-2. Run the application:
-sh 
-   python app.py
