@@ -3,12 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Portal</title>
+    <title>Awesome News Portal</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
+        body {
+            background-color: #f4f4f4;
+        }
         .news-card {
             margin-bottom: 20px;
             height: 100%;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .news-card:hover {
+            transform: translateY(-5px);
         }
         .news-card .card-img-top {
             height: 200px;
@@ -16,24 +25,31 @@
         }
         .navbar-dark .navbar-nav .nav-link {
             color: rgba(255,255,255,.75);
+            transition: color 0.3s;
         }
         .navbar-dark .navbar-nav .nav-link:hover,
         .navbar-dark .navbar-nav .nav-link.active {
             color: #fff;
         }
+        .category-icon {
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="{{ url_for('index') }}">News Portal</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="{{ url_for('index') }}"><i class="fas fa-newspaper"></i> Awesome News</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav ml-auto">
                 {% for cat in categories %}
                 <li class="nav-item {% if category == cat %}active{% endif %}">
-                    <a class="nav-link" href="{{ url_for('index', category=cat) }}">{{ cat.capitalize() }}</a>
+                    <a class="nav-link" href="{{ url_for('index', category=cat) }}">
+                        <i class="category-icon fas fa-{{ 'globe' if cat == 'general' else 'briefcase' if cat == 'business' else 'film' if cat == 'entertainment' else 'heartbeat' if cat == 'health' else 'flask' if cat == 'science' else 'futbol' if cat == 'sports' else 'microchip' }}"></i>
+                        {{ cat.capitalize() }}
+                    </a>
                 </li>
                 {% endfor %}
             </ul>
@@ -41,25 +57,25 @@
     </nav>
 
     <div class="container mt-4">
-        <h1 class="mb-4">{{ category.capitalize() }} News</h1>
+        <h1 class="mb-4 text-center">{{ category.capitalize() }} News</h1>
         <div class="row">
             {% for article in articles %}
             <div class="col-md-4 mb-4">
                 <div class="card news-card">
-                    {% if article.urlToImage %}
-                        <img src="{{ article.urlToImage }}" 
-                             class="card-img-top" 
-                             alt="{{ article.title }}"
-                             onerror="this.style.display='none'">
-                    {% endif %}
+                    <img src="{{ article.urlToImage }}" 
+                         class="card-img-top" 
+                         alt="{{ article.title }}"
+                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='default_image.jpg') }}';">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">{{ article.title }}</h5>
-                        <p class="card-text flex-grow-1">{{ article.description or 'No description available' }}</p>
+                        <p class="card-text flex-grow-1">{{ article.description }}</p>
                         <a href="{{ article.url }}" class="btn btn-primary mt-auto" target="_blank">Read More</a>
                     </div>
-                    <div class="card-footer">
-                        <small class="text-muted">
-                            {{ article.source.name }} - {{ article.publishedAt.split('T')[0] }}
+                    <div class="card-footer text-muted">
+                        <small>
+                            <i class="fas fa-newspaper"></i> {{ article.source.name }} 
+                            <br>
+                            <i class="far fa-calendar-alt"></i> {{ article.publishedAt }}
                         </small>
                     </div>
                 </div>

@@ -3,6 +3,7 @@ from newsapi import NewsApiClient
 import os
 from dotenv import load_dotenv
 import requests
+from datetime import datetime
 
 load_dotenv()
 
@@ -19,7 +20,7 @@ def get_news(category='general', page=1):
             category=category,
             language='en',
             page=page,
-            page_size=20
+            page_size=12  # Reduced to 12 for better layout
         )
         return all_articles
     except Exception as e:
@@ -29,7 +30,7 @@ def get_news(category='general', page=1):
 @app.route('/proxy_image/<path:image_url>')
 def proxy_image(image_url):
     try:
-        response = requests.get(image_url)
+        response = requests.get(image_url, timeout=5)
         return Response(response.content, content_type=response.headers['Content-Type'])
     except:
         return Response(status=404)
@@ -47,15 +48,17 @@ def index(category='general', page=1):
 
     for article in articles:
         article['title'] = article.get('title', 'No title available')
-        article['description'] = article.get('description', 'No description available')
+        article['description'] = article.get('description', 'No description available')[:100] + '...' if article.get('description') else 'No description available'
         article['url'] = article.get('url', '#')
         if article.get('urlToImage'):
             article['urlToImage'] = url_for('proxy_image', image_url=article['urlToImage'])
+        else:
+            article['urlToImage'] = url_for('static', filename='default_image.jpg')
         article['source'] = article.get('source', {'name': 'Unknown'})
-        article['publishedAt'] = article.get('publishedAt', 'Unknown date')
+        article['publishedAt'] = datetime.strptime(article.get('publishedAt', ''), "%Y-%m-%dT%H:%M:%SZ").strftime("%B %d, %Y") if article.get('publishedAt') else 'Unknown date'
 
-    total_results = min(news_data.get('totalResults', 0), 100)
-    total_pages = min((total_results // 20) + 1, 5)
+    total_results = min(news_data.get('totalResults', 0), 60)  # Limit to 60 articles (5 pages * 12 articles)
+    total_pages = min((total_results // 12) + 1, 5)  # Max 5 pages
     return render_template('index.html', articles=articles, category=category, categories=categories, page=page, total_pages=total_pages)
 
 if __name__ == '__main__':
