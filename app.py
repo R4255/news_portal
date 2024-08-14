@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request
 from newsapi import NewsApiClient
 import os
@@ -36,10 +37,6 @@ def index(category='general', page=1):
         page = 1
     news_data = get_news(category, page)
     articles = news_data.get('articles', [])
-
-    # Print the urlToImage field for debugging
-    for article in articles:
-        print(article.get('urlToImage'))
 
     total_results = min(news_data.get('totalResults', 0), 100)  # Limit to 100 articles (5 pages * 20 articles)
     total_pages = min((total_results // 20) + 1, 5)  # Max 5 pages
