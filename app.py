@@ -1,10 +1,18 @@
 from flask import Flask, render_template, request
 from newsapi import NewsApiClient
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 
+# Get API key from environment variable
+news_api_key = os.getenv('NEWS_API_KEY')
+
 # Initialize NewsApiClient
-newsapi = NewsApiClient(api_key='4c1c1dd6c7ae453f8193b87839bf4bae')
+newsapi = NewsApiClient(api_key=news_api_key)
 
 # Define categories
 categories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology']
