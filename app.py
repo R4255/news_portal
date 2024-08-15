@@ -4,9 +4,9 @@ import os
 from dotenv import load_dotenv
 import requests
 from datetime import datetime
+import re  # Import the re module for regular expressions
 
 load_dotenv()
-
 app = Flask(__name__)
 
 news_api_key = os.getenv('NEWS_API_KEY')
@@ -43,6 +43,7 @@ def index(category='general', page=1):
         category = 'general'
     if page < 1 or page > 5:
         page = 1
+
     news_data = get_news(category, page)
     articles = news_data.get('articles', [])
 
@@ -56,9 +57,13 @@ def index(category='general', page=1):
             article['urlToImage'] = url_for('static', filename='default_image.jpg')
         article['source'] = article.get('source', {'name': 'Unknown'})
         article['publishedAt'] = datetime.strptime(article.get('publishedAt', ''), "%Y-%m-%dT%H:%M:%SZ").strftime("%B %d, %Y") if article.get('publishedAt') else 'Unknown date'
+        
+        # Use regular expression to replace "No description available"
+        article['description'] = re.sub(r'No description available', f"No description available by {article['source']['name']}", article['description'])
 
     total_results = min(news_data.get('totalResults', 0), 60)  # Limit to 60 articles (5 pages * 12 articles)
     total_pages = min((total_results // 12) + 1, 5)  # Max 5 pages
+
     return render_template('index.html', articles=articles, category=category, categories=categories, page=page, total_pages=total_pages)
 
 if __name__ == '__main__':
