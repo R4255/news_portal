@@ -49,7 +49,7 @@ def index(category='general', page=1):
 
     for article in articles:
         article['title'] = article.get('title', 'No title available')
-        article['description'] = article.get('description', 'No description available')[:100] + '...' if article.get('description') else 'No description available'
+        article['description'] = article.get('description', 'No description available')[:100] + '...' if article.get('description') else ''
         article['url'] = article.get('url', '#')
         if article.get('urlToImage'):
             article['urlToImage'] = url_for('proxy_image', image_url=article['urlToImage'])
@@ -59,7 +59,7 @@ def index(category='general', page=1):
         article['publishedAt'] = datetime.strptime(article.get('publishedAt', ''), "%Y-%m-%dT%H:%M:%SZ").strftime("%B %d, %Y") if article.get('publishedAt') else 'Unknown date'
         
         # Use regular expression to replace "No description available"
-        article['description'] = re.sub(r'No description available', f"No description available by {article['source']['name']}", article['description'])
+        article['description'] = re.sub(r'No description available', '', article['description'])
 
     total_results = min(news_data.get('totalResults', 0), 60)  # Limit to 60 articles (5 pages * 12 articles)
     total_pages = min((total_results // 12) + 1, 5)  # Max 5 pages
