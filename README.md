@@ -8,3 +8,5 @@ This is a Flask-based news portal application that fetches news articles from Ne
 - Display news articles by category
 - Pagination with 20 articles per page
 - Default image for articles without an image
+
+Deployed Successfully on Heroku 
