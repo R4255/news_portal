@@ -8,3 +8,6 @@ Flask-Caching==1.10.1
 Jinja2==3.0.1
 itsdangerous==2.0.1
 click==8.0.1
+flask-sqlalchemy
+flask-login
+psycopg2-binary
