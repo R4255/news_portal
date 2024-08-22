@@ -85,6 +85,7 @@ def proxy_image(image_url):
 @app.route('/')
 @app.route('/category/<category>')
 @app.route('/category/<category>/page/<int:page>')
+@login_required
 def index(category='general', page=1):
     query = request.args.get('q')
     if category not in categories:
@@ -114,6 +115,7 @@ def index(category='general', page=1):
     return render_template('index.html', articles=articles, category=category, categories=categories, page=page, total_pages=total_pages, query=query)
 
 @app.route('/search')
+@login_required
 def search():
     query = request.args.get('q', '')
     category = request.args.get('category', 'general')
@@ -121,6 +123,7 @@ def search():
     return index(category, page)
 
 @app.route('/api/news')
+@login_required
 def api_news():
     category = request.args.get('category', 'general')
     page = int(request.args.get('page', 1))
@@ -130,6 +133,8 @@ def api_news():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
@@ -137,11 +142,13 @@ def register():
         
         user = User.query.filter_by(username=username).first()
         if user:
-            return render_template('index.html', error='Username already exists')
+            flash('Username already exists', 'danger')
+            return redirect(url_for('register'))
         
         user = User.query.filter_by(email=email).first()
         if user:
-            return render_template('index.html', error='Email already exists')
+            flash('Email already exists', 'danger')
+            return redirect(url_for('register'))
         
         new_user = User(username=username, email=email)
         new_user.set_password(password)
@@ -151,10 +158,12 @@ def register():
         flash('Registration successful. Please log in.', 'success')
         return redirect(url_for('login'))
     
-    return render_template('index.html')
+    return render_template('index.html', form='register')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -165,16 +174,17 @@ def login():
             flash('Logged in successfully.', 'success')
             return redirect(url_for('index'))
         else:
-            return render_template('index.html', error='Invalid username or password')
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('login'))
     
-    return render_template('index.html')
+    return render_template('index.html', form='login')
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash('Logged out successfully.', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 @app.errorhandler(404)
 def page_not_found(e):

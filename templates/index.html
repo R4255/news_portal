@@ -89,6 +89,14 @@
             text-align: center;
             padding: 20px;
         }
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -99,19 +107,23 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
-                {% for cat in categories %}
-                <li class="nav-item {% if category == cat %}active{% endif %}">
-                    <a class="nav-link" href="{{ url_for('index', category=cat) }}">
-                        <i class="category-icon fas fa-{{ 'globe' if cat == 'general' else 'briefcase' if cat == 'business' else 'film' if cat == 'entertainment' else 'heartbeat' if cat == 'health' else 'flask' if cat == 'science' else 'futbol' if cat == 'sports' else 'microchip' }}"></i>
-                        {{ cat.capitalize() }}
-                    </a>
-                </li>
-                {% endfor %}
+                {% if current_user.is_authenticated %}
+                    {% for cat in categories %}
+                    <li class="nav-item {% if category == cat %}active{% endif %}">
+                        <a class="nav-link" href="{{ url_for('index', category=cat) }}">
+                            <i class="category-icon fas fa-{{ 'globe' if cat == 'general' else 'briefcase' if cat == 'business' else 'film' if cat == 'entertainment' else 'heartbeat' if cat == 'health' else 'flask' if cat == 'science' else 'futbol' if cat == 'sports' else 'microchip' }}"></i>
+                            {{ cat.capitalize() }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                {% endif %}
             </ul>
-            <form id="search-form" class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search news" aria-label="Search" name="q" value="{{ query or '' }}">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
+            {% if current_user.is_authenticated %}
+                <form id="search-form" class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search news" aria-label="Search" name="q" value="{{ query or '' }}">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            {% endif %}
             <ul class="navbar-nav ml-auto">
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
@@ -129,57 +141,113 @@
         </div>
     </nav>
     <div class="container mt-4">
-        <h1 class="mb-4 text-center">{{ category.capitalize() }} News</h1>
-        <div id="news-container" class="row">
-            {% for article in articles %}
-            <div class="col-md-4 mb-4">
-                <div class="card news-card">
-                    <img src="{{ article.urlToImage }}" 
-                         class="card-img-top" 
-                         alt="{{ article.title }}"
-                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='default_image.jpg') }}';">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">{{ article.title }}</h5>
-                        <p class="card-text flex-grow-1">{{ article.description }}</p>
-                        <a href="{{ article.url }}" class="btn btn-primary mt-auto" target="_blank">Read More</a>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                    <div class="card-footer text-muted">
-                        <small>
-                            <i class="fas fa-newspaper"></i> {{ article.source.name }} 
-                            <br>
-                            <i class="far fa-calendar-alt"></i> {{ article.publishedAt }}
-                        </small>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if current_user.is_authenticated %}
+            <h1 class="mb-4 text-center">{{ category.capitalize() }} News</h1>
+            <div id="news-container" class="row">
+                {% for article in articles %}
+                <div class="col-md-4 mb-4">
+                    <div class="card news-card">
+                        <img src="{{ article.urlToImage }}" 
+                             class="card-img-top" 
+                             alt="{{ article.title }}"
+                             onerror="this.onerror=null;this.src='{{ url_for('static', filename='default_image.jpg') }}';">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ article.title }}</h5>
+                            <p class="card-text flex-grow-1">{{ article.description }}</p>
+                            <a href="{{ article.url }}" class="btn btn-primary mt-auto" target="_blank">Read More</a>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <small>
+                                <i class="fas fa-newspaper"></i> {{ article.source.name }} 
+                                <br>
+                                <i class="far fa-calendar-alt"></i> {{ article.publishedAt }}
+                            </small>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
-        </div>
-        <div id="loading" class="loading">
-            <i class="fas fa-spinner fa-spin"></i> Loading more news...
-        </div>
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                {% if page > 1 %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('index', category=category, page=page-1, q=query) }}" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                {% endif %}
-                {% for i in range(1, total_pages + 1) %}
-                <li class="page-item {% if page == i %}active{% endif %}">
-                    <a class="page-link" href="{{ url_for('index', category=category, page=i, q=query) }}">{{ i }}</a>
-                </li>
                 {% endfor %}
-                {% if page < total_pages %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('index', category=category, page=page+1, q=query) }}" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
+            </div>
+            <div id="loading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading more news...
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('index', category=category, page=page-1, q=query) }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% for i in range(1, total_pages + 1) %}
+                    <li class="page-item {% if page == i %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('index', category=category, page=i, q=query) }}">{{ i }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if page < total_pages %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('index', category=category, page=page+1, q=query) }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% elif form == 'login' %}
+            <div class="auth-form">
+                <h2 class="text-center mb-4">Login</h2>
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </form>
+                <p class="mt-3 text-center">Don't have an account? <a href="{{ url_for('register') }}">Sign up</a></p>
+            </div>
+        {% elif form == 'register' %}
+            <div class="auth-form">
+                <h2 class="text-center mb-4">Sign Up</h2>
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                </form>
+                <p class="mt-3 text-center">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+            </div>
+        {% else %}
+            <div class="text-center">
+                <h2>Welcome to Awesome News Portal</h2>
+                <p>Please <a href="{{ url_for('login') }}">login</a> or <a href="{{ url_for('register') }}">sign up</a> to access the news.</p>
+            </div>
+        {% endif %}
     </div>
     <footer>
         <p>&copy; 2024 Awesome News Portal. All rights reserved.</p>
