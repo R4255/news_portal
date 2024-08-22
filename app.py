@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 # Configure database
-app.config['SECRET_KEY'] = 'bbacaafc64ce0089fa17130474e982f1827d3b12d1eb4904'  # Change this to a secure random string
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgresql://')
 db = SQLAlchemy(app)
 
