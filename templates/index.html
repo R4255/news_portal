@@ -112,9 +112,22 @@
                 <input class="form-control mr-sm-2" type="search" placeholder="Search news" aria-label="Search" name="q" value="{{ query or '' }}">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
+            <ul class="navbar-nav ml-auto">
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('register') }}">Signup</a>
+                </li>
+                {% endif %}
+            </ul>
         </div>
     </nav>
-
     <div class="container mt-4">
         <h1 class="mb-4 text-center">{{ category.capitalize() }} News</h1>
         <div id="news-container" class="row">
@@ -168,11 +181,9 @@
             </ul>
         </nav>
     </div>
-
     <footer>
         <p>&copy; 2024 Awesome News Portal. All rights reserved.</p>
     </footer>
-
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -180,7 +191,6 @@
         $(document).ready(function() {
             let currentPage = {{ page }};
             let loading = false;
-
             $(window).scroll(function() {
                 if ($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
                     if (!loading) {
@@ -188,12 +198,10 @@
                     }
                 }
             });
-
             function loadMoreNews() {
                 loading = true;
                 $('#loading').show();
                 currentPage++;
-
                 $.ajax({
                     url: "{{ url_for('api_news') }}",
                     data: {
