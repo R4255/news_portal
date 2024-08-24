@@ -83,23 +83,6 @@ Follow these steps to get a local copy of the project:
 
 ---
 
-## 🎨 Screenshots
-
-Here are a few screenshots of the application in action:
-
-### 🏠 Home Page
-
-![Home Page](screenshots/home.png)
-
-### 🔐 Login Page
-
-![Login Page](screenshots/login.png)
-
-### 📜 News Articles
-
-![News Articles](screenshots/news.png)
-
----
 
 ## 🧰 Usage
 
