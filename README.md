@@ -28,7 +28,7 @@ Welcome to the **News Portal** project, a dynamic web application built using Fl
 - **Frontend:** Bootstrap, Jinja2 Templates
 - **API Integration:** NewsAPI
 - **Database:** PostgreSQL, SQLite (for development)
-- **Deployment:** Render.com, Heroku (Optional)
+- **Deployment:**  Heroku 
 
 ---
 
