@@ -1,7 +1,3 @@
-# README.md
-Here's a well-structured README file for your GitHub repository. I've included sections with Markdown-based animations to give it a polished look:
-
----
 
 # 📰 News Portal 📰
 
